@@ -19,11 +19,15 @@ from stabilizer import Stabilizer
 
 # Miscellaneous detections (eyes/ mouth...)
 from facial_features import FacialFeatures, Eyes
+from emotion_predict.utils import *
+
+#emotion_predictor = Stable_Emotion_Predictor("emotion_predict/emotion_model_meta.pth")
+emotion_predictor = Stable_Emotion_Predictor("emotion_model2.pth")
 
 import sys
 
 # global variable
-port = 5066         # have to be same as unity
+IP, PORT = "127.0.0.1", 9000
 
 # init TCP connection with unity
 # return the socket connected
@@ -51,11 +55,11 @@ def init_TCP():
     # s.connect(address)
     # return s
 
-def send_info_to_unity(s, args):
-    msg = '%.4f ' * len(args) % args
-
+def send_info_to_unity(sock, msg):
+    #msg = '%.4f ' * len(args) %s args
+    #print(msg)
     try:
-        s.send(bytes(msg, "utf-8"))
+        sock.sendto(msg.encode('utf8'), (IP, PORT))
     except socket.error as e:
         print("error while sending :: " + str(e))
 
@@ -65,12 +69,22 @@ def send_info_to_unity(s, args):
 def print_debug_msg(args):
     msg = '%.4f ' * len(args) % args
     print(msg)
+    
+def map_to_0_100(x):
+    # 保證輸入在 [10,60] 範圍內
+    x = max(10, min(60, x))
+    return (x - 10) * 2
+
+def map_150_200_to_0_100(x):
+    # 先 clamp 確保 x 在 [150,200]
+    x = max(150, min(250, x))
+    return (x - 150) * 1
+
 
 def main():
 
     # use internal webcam/ USB camera
     cap = cv2.VideoCapture(args.cam)
-
     # IP cam (android only), with the app "IP Webcam"
     # url = 'http://192.168.0.102:4747/video'
     # url = 'https://192.168.0.102:8080/video'
@@ -114,7 +128,7 @@ def main():
 
     # Initialize TCP connection
     if args.connect:
-        socket = init_TCP()
+        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
     while cap.isOpened():
         success, img = cap.read()
@@ -136,6 +150,8 @@ def main():
 
         # if there is any face detected
         if faces:
+            emotion_predictor.feed(faces[0])
+            #print("Preciction class:", emotion_predictor.predict())
             # only get the first face
             for i in range(len(image_points)):
                 image_points[i, 0] = faces[0][i][0]
@@ -204,17 +220,15 @@ def main():
             # print("left eye: %.2f, %.2f; right eye %.2f, %.2f"
             #     % (steady_pose_eye[0], steady_pose_eye[1], steady_pose_eye[2], steady_pose_eye[3]))
             # print("EAR_LEFT: %.2f; EAR_RIGHT: %.2f" % (ear_left, ear_right))
-            # print("MAR: %.2f; Mouth Distance: %.2f" % (mar, steady_mouth_dist))
-
+            # print("MAR: %.2f; Mouth Distance: %.2f" % (mar*100, map_150_200_to_0_100(steady_mouth_dist)))
+           
             # send info to unity
             if args.connect:
-
+                s = f"{100 - map_to_0_100(ear_left * 100)} {100 - map_to_0_100(100 * ear_right)} {mar*100} {float(map_150_200_to_0_100(steady_mouth_dist))} {roll:.1f} {pitch:.1f} {yaw:.1f}"
+                #s = s.encode()
                 # for sending to live2d model (Hiyori)
-                send_info_to_unity(socket,
-                    (roll, pitch, yaw,
-                    ear_left, ear_right, x_ratio_left, y_ratio_left, x_ratio_right, y_ratio_right,
-                    mar, mouth_distance)
-                )
+                send_info_to_unity(sock, s)
+                send_info_to_unity(sock, f"{emotion_predictor.predict()}")
 
             # print the sent values in the terminal
             if args.debug:
