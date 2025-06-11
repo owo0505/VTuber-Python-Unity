@@ -36,13 +36,12 @@ public class BlendShapeDriver : MonoBehaviour
                 smr.sharedMesh.GetBlendShapeIndex("Eye_Surprise_Small"),
                 smr.sharedMesh.GetBlendShapeIndex("Eye_Other_Star")
             }},
-            // neutral 不驅動任何 BlendShape
             { "neutral", new int[0] }
         };
     }
 
     /// <summary>
-    /// 分別設定左右眼的 Blink 權重（range 0~100）
+    /// Blink weight（range 0~100）
     /// </summary>
     public void SetEyeBlinks(float leftValue, float rightValue)
     {
@@ -60,11 +59,11 @@ public class BlendShapeDriver : MonoBehaviour
     {
         if (emo == currentEmotion) return;
 
-        // 先把前一個 emotion 的那些 index 全部設 0
+        // old emotion 
         foreach (var idx in emotionMap[currentEmotion])
             if (idx >= 0) smr.SetBlendShapeWeight(idx, 0f);
 
-        // 再把新 emotion 的那些 index 設 100
+        // new emotion 
         foreach (var idx in emotionMap[emo])
             if (idx >= 0) smr.SetBlendShapeWeight(idx, 100f);
 

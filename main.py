@@ -7,7 +7,6 @@ import cv2
 import mediapipe as mp
 import numpy as np
 
-# for TCP connection with unity
 import socket
 
 # face detection and facial landmark
@@ -29,35 +28,7 @@ import sys
 # global variable
 IP, PORT = "127.0.0.1", 9000
 
-# init TCP connection with unity
-# return the socket connected
-def init_TCP():
-    port = args.port
-
-    # '127.0.0.1' = 'localhost' = your computer internal data transmission IP
-    address = ('127.0.0.1', port)
-    # address = ('192.168.0.107', port)
-
-    try:
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.connect(address)
-        # print(socket.gethostbyname(socket.gethostname()) + "::" + str(port))
-        print("Connected to address:", socket.gethostbyname(socket.gethostname()) + ":" + str(port))
-        return s
-    except OSError as e:
-        print("Error while connecting :: %s" % e)
-        
-        # quit the script if connection fails (e.g. Unity server side quits suddenly)
-        sys.exit()
-
-    # s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    # # print(socket.gethostbyname(socket.gethostname()))
-    # s.connect(address)
-    # return s
-
 def send_info_to_unity(sock, msg):
-    #msg = '%.4f ' * len(args) %s args
-    #print(msg)
     try:
         sock.sendto(msg.encode('utf8'), (IP, PORT))
     except socket.error as e:
@@ -71,12 +42,10 @@ def print_debug_msg(args):
     print(msg)
     
 def map_to_0_100(x):
-    # 保證輸入在 [10,60] 範圍內
     x = max(10, min(60, x))
     return (x - 10) * 2
 
-def map_150_200_to_0_100(x):
-    # 先 clamp 確保 x 在 [150,200]
+def map_150_250_to_0_100(x):
     x = max(150, min(250, x))
     return (x - 150) * 1
 
@@ -85,10 +54,6 @@ def main():
 
     # use internal webcam/ USB camera
     cap = cv2.VideoCapture(args.cam)
-    # IP cam (android only), with the app "IP Webcam"
-    # url = 'http://192.168.0.102:4747/video'
-    # url = 'https://192.168.0.102:8080/video'
-    # cap = cv2.VideoCapture(url)
 
     # Facemesh
     detector = FaceMeshDetector()
@@ -132,6 +97,8 @@ def main():
 
     while cap.isOpened():
         success, img = cap.read()
+        
+        img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
         if not success:
             print("Ignoring empty camera frame.")
@@ -224,11 +191,12 @@ def main():
            
             # send info to unity
             if args.connect:
-                s = f"{100 - map_to_0_100(ear_left * 100)} {100 - map_to_0_100(100 * ear_right)} {mar*100} {float(map_150_200_to_0_100(steady_mouth_dist))} {roll:.1f} {pitch:.1f} {yaw:.1f}"
+                s = f"{100 - map_to_0_100(ear_left * 100)} {100 - map_to_0_100(100 * ear_right)} {mar*100} {float(map_150_250_to_0_100(steady_mouth_dist))} {roll:.1f} {pitch:.1f} {yaw:.1f}"
                 #s = s.encode()
                 # for sending to live2d model (Hiyori)
                 send_info_to_unity(sock, s)
                 send_info_to_unity(sock, f"{emotion_predictor.predict()}")
+
 
             # print the sent values in the terminal
             if args.debug:
@@ -280,3 +248,4 @@ if __name__ == "__main__":
 
     # demo code
     main()
+

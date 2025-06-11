@@ -1,0 +1,47 @@
+「RadDollV2」VRChat導入方法　2025/04/08　現在
+
+①前準備
+１：Unity2022.3.22f1を用意します。これ以外のバージョンでの動作は確認しておりません。
+２：VRchat Creator CompanionをVRChat公式からダウンロードし、Avater用のSceneを制作します。
+３：lilToonshaderをダウンロードします。　　ダウンロードページ「https://lilxyzw.booth.pm/items/3087170」
+　　（もしくはVRchat Creator Companion経由でLiltoonをダウンロードします。）
+４：フォルダ内のunitypackageをUnity内にインポートします。（先にこれを行わないとモデルがピンク色になったりします。）
+
+②「RadDollV2」の導入
+１：フォルダ内の[RadDollV2_v1.30.Unitypackage]をインポートします。（ドラッグ&ドロップで出来ます。）
+２：出来た[RadDollV2]内にある「Prefab_PB」フォルダに入っているprefabをSceneにドラッグ&ドロップします。(サムネイルがピンク色の場合も一度Sceneに持っていけば正常に見える場合が多いです。)
+３：メニューバーにあるVRChat SDKから[Show Control Panel]を選び、[Builder]タブのBuild&Publishを押します。
+４：画面が切り替わったらAvaterNameに好きな名前を入れ、下のチェック欄にチェックを入れてUploadを押せばアップロードが始まります。
+
+☆トラブルシューティング
+・アップロードできない場合
+　→VRChatの仕様でゲームを始めた直後はアップロードが出来ません。何日か遊んだり多くのワールドを訪れることで制限が解除されるようです。
+
+・FbxのGenelic→humanoid化に失敗する場合
+　→同じ画面のConfigure画面を開き、赤くなっている場所のボーンを手動で設定する（Footが赤い場合、HierarchyにあるFootをドラッグ＆ドロップで設定できます。）
+
+☆注意
+・Build＆Publish直前の画面にある「A Material on this avater has custom shader keywords.～」という注意書きの[Auto Fix]は押さないでください、シェーダーが壊れます。(たぶん)
+
+
+
+
+☆テクスチャの改変を行う時は同封のpsdファイルを使うとやりやすいです。
+
+☆Unityパッケージファイルの解説
+
+「Animation」　　　　　アニメーションオーバーライドやエモート用のアニメーションファイルとアニメーションコントローラーが入っています。
+「fbx」　　　　　　　　RadDollV2のfbxデータが入っています
+「Tex」　　　　　　　　各種テクスチャとマスクテクスチャが入っています。
+「Material」       　　通常テクスチャを適用したマテリアルが入っています。
+「Prefab_PB」          VRChat向けのphysboneを適用したプレハブが入っています。
+「Prefab_DB」          Dynamicboneを適用したプレハブが入っています。Dynamicboneを導入していない場合揺れ物は動きません。
+「Quest」              クエスト用の軽量モデルです
+
+
+
+☆同封ファイルの解説
+「fbx」　　　　　　　　RadDollV2のfbxデータが入っています
+「tex」　　　　        png形式のテクスチャが入っています。
+「psd」                レイヤー情報の入ったテクスチャファイルです。改変をする際に使うと便利です。
+「VRM」　　　　　　　　VRM形式のファイルが入っています

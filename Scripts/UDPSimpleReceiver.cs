@@ -24,7 +24,7 @@ public class UDPSimpleReceiver : MonoBehaviour
         blendDriver = GetComponent<BlendShapeDriver>();
         headDriver = GetComponent<HeadPoseDriver>();
         if (headDriver == null)
-            Debug.LogWarning("沒有找到 HeadPoseDriver！");
+            Debug.LogWarning("HeadPoseDriver！ Not Found");
     }
 
     void Start()
@@ -83,7 +83,6 @@ public class UDPSimpleReceiver : MonoBehaviour
                 else if (parts.Length == 1)
                 {
                     string emo = parts[0].ToLower();
-                    // 只處理我們定義好的四種
                     if (emo == "angry" || emo == "sad" ||
                         emo == "happy" || emo == "neutral")
                     {

@@ -11,7 +11,7 @@ public class HeadPoseDriver : MonoBehaviour
     /// </summary>
     public void SetHeadPose(float roll, float pitch, float yaw)
     {
-        // Unity Euler 顺序是 ZXY，依次传 z=roll,x=pitch,y=yaw
+        // z=roll, x=pitch, y=yaw
         headBone.localRotation = Quaternion.Euler(pitch, yaw, roll);
     }
 }
